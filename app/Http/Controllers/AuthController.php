@@ -42,11 +42,12 @@ class AuthController extends Controller
                 return response()->json(['status' => false, 'message' => 'Password salah'], 401);
             }
 
-      
+            $token = $user->createToken('auth_token')->plainTextToken;
 
             return response()->json([
                 'status' => true,
                 'message' => 'Login sukses',
+                'token' => $token,
                 'user' => $user,
 
             ]);
@@ -99,27 +100,21 @@ class AuthController extends Controller
             return response()->json(['status' => false, 'message' => 'Server error', 'error' => $e->getMessage()], 500);
         }
     }
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function logoutUser(Request $request)
     {
-        //
-    }
+        try {
+            $request->user()->currentAccessToken()->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            return response()->json([
+                'status' => true,
+                'message' => 'Logout berhasil'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Gagal logout',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
